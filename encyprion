@@ -137,3 +137,24 @@ def s_box_substitution(bits48):
         # Convert value (0-15) to 4-bit string and append
         out += format(val, '04b')
     return out
+
+
+def feistel(right32, subkey48):
+    """
+    Feistel function F(R, K):
+    - Expand R (32 bits) to 48 bits
+    - XOR with round key
+    - Pass through S-boxes (back to 32 bits)
+    - Permute with P table
+    """
+    # Expand 32-bit R to 48 bits
+    expanded = permute(right32, E)
+
+    # XOR with the round subkey
+    xored = xor(expanded, subkey48)
+
+    # Apply S-boxes to get 32 bits
+    s_out = s_box_substitution(xored)
+
+    # Apply P permutation
+    return permute(s_out, P)
