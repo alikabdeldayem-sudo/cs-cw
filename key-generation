@@ -32,3 +32,32 @@ def generate_round_keys(key64_bits):
         CD = C + D
         round_keys.append(permute(CD, PC2))  # 48 bits
     return round_keys
+
+def generate_round_keys(key64_bits):
+    
+    # Take a 64-bit key (as a string of '0' and '1') and 
+    # return a list of 16 round keys, each 48 bits.
+    
+    # Apply PC1 to drop parity bits and reorder → 56 bits
+    key56 = permute(key64_bits, PC1)
+
+    # Split into two 28-bit halves C and D
+    C = key56[:28]
+    D = key56[28:]
+
+    round_keys = []
+
+    # For each of the 16 rounds:
+    for s in SHIFTS:
+        # Shift both halves by the round-specific amount
+        C = left_shift(C, s)
+        D = left_shift(D, s)
+
+        # Concatenate back into 56 bits
+        CD = C + D
+
+        # Apply PC2 to get a 48-bit subkey for this round
+        subkey = permute(CD, PC2)
+        round_keys.append(subkey)
+
+    return round_keys
