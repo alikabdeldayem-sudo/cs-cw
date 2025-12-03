@@ -107,3 +107,33 @@ S_BOXES = [
     ],
 ]
 
+def xor(a, b):
+    
+    #Bitwise XOR between two equal-length bitstrings a and b.
+    
+    return ''.join('1' if x != y else '0' for x, y in zip(a, b))
+
+
+def s_box_substitution(bits48):
+    
+    #Apply 8 S-boxes to a 48-bit input.
+    #Process 6 bits at a time, each S-box to 4 bits.
+    #Returns 32-bit output.
+    
+    out = ''
+    # Loop over 8 groups of 6 bits
+    for i in range(8):
+        block6 = bits48[i*6:(i+1)*6]
+
+        # Row comes from first and last bit
+        row = int(block6[0] + block6[5], 2)
+
+        # Column comes from middle 4 bits
+        col = int(block6[1:5], 2)
+
+        # Lookup S-box value
+        val = S_BOXES[i][row][col]
+
+        # Convert value (0-15) to 4-bit string and append
+        out += format(val, '04b')
+    return out
