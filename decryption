@@ -1,0 +1,36 @@
+from key_generation import generate_round_keys, permute
+from encryption import IP, FP, feistel, xor
+
+
+def decrypt_block(block64_bits, key64_bits):
+    """
+    Decrypt a 64-bit block using DES and the given 64-bit key.
+    Decryption is the same as encryption but round keys are used in reverse order.
+    """
+    # Generate all round keys
+    round_keys = generate_round_keys(key64_bits)
+
+    # Reverse the order of round keys for decryption
+    round_keys.reverse()
+
+    # Initial permutation of the ciphertext block
+    perm = permute(block64_bits, IP)
+
+    # Split into left and right halves
+    L = perm[:32]
+    R = perm[32:]
+
+    # 16 rounds, same structure as encryption
+    for i in range(16):
+        # Feistel function with current round key
+        f_out = feistel(R, round_keys[i])
+
+        # get new right half
+        new_R = xor(L, f_out)
+
+        # Swap halves for the next round
+        L, R = R, new_R
+
+    # switch L and R and apply final permutation to obtain plaintext
+    pre_out = R + L
+    return permute(pre_out, FP)
